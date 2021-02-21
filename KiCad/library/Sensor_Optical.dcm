@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP OPT3001
+D Ambient Light Sensor, I2C interface, 1.6-3.6V, USON-6
+K opto ambient light sensor
+F http://www.ti.com/lit/ds/symlink/opt3001.pdf
+$ENDCMP
+#
+#End Doc Library

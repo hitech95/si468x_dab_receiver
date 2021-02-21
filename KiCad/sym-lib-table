@@ -1,0 +1,11 @@
+(sym_lib_table
+  (lib (name Memory_EEPROM_)(type Legacy)(uri ${KIPRJMOD}/library/Memory_EEPROM.lib)(options "")(descr "EEPROM memory"))
+  (lib (name Connector_RaspberryPi)(type Legacy)(uri ${KIPRJMOD}/library/Connector_RaspberryPi.lib)(options "")(descr "Raspberry Pi connector symbols"))
+  (lib (name 74xGxx_)(type Legacy)(uri ${KIPRJMOD}/library/74xGxx.lib)(options "")(descr "74xGxx symbols"))
+  (lib (name Device_)(type Legacy)(uri ${KIPRJMOD}/library/Device.lib)(options "")(descr "Generic symbols for common devices"))
+  (lib (name Amplifier_Audio_)(type Legacy)(uri ${KIPRJMOD}/library/Amplifier_Audio.lib)(options "")(descr "Amplifier for audio applications"))
+  (lib (name Sensor_Optical_)(type Legacy)(uri ${KIPRJMOD}/library/Sensor_Optical.lib)(options "")(descr "Light and color sensors"))
+  (lib (name Interface_Optical_)(type Legacy)(uri ${KIPRJMOD}/library/Interface_Optical.lib)(options "")(descr "Optical interfaces (IR receivers)"))
+  (lib (name RF_FM_DAB)(type Legacy)(uri ${KIPRJMOD}/library/RF_FM_DAB.lib)(options "")(descr "FM / DAB wireless devices"))
+  (lib (name Memory_Flash_)(type Legacy)(uri ${KIPRJMOD}/library/Memory_Flash.lib)(options "")(descr "Flash memory"))
+)

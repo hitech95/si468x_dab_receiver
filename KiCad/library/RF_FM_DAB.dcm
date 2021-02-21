@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP Si4688-A10-GM
+D FM/DAB Broadcast Radio Receiver with RDS/RBDS
+K Broadcast FM DAB Radio Receiver RDS RBDS
+F https://www.silabs.com/documents/public/data-shorts/Si4688-short.pdf
+$ENDCMP
+#
+#End Doc Library

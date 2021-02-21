@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP CAT24C512
+D 512 kb CMOS Serial EEPROM, DIP-8/SOIC-8/TSSOP-8/DFN-8
+K I2C EEPROM Serial 512kb
+F https://www.onsemi.cn/PowerSolutions/document/CAT24C512-D.PDF
+$ENDCMP
+#
+#End Doc Library

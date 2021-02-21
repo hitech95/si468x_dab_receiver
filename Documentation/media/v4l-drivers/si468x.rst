@@ -1,0 +1,166 @@
+.. SPDX-License-Identifier: GPL-2.0
+
+.. include:: <isonum.txt>
+
+
+The SI476x Driver
+=================
+
+Copyright |copy| 2020 Franz Parzer <rpi-receiver@htl-steyr.ac.at>
+Copyright |copy| 2013 Andrey Smirnov <andrew.smirnov@gmail.com>
+
+Parameters exposed over debugfs
+-------------------------------
+SI476x allow user to get multiple characteristics that can be very
+useful for EoL testing/RF performance estimation, parameters that have
+very little to do with V4L2 subsystem. Such parameters are exposed via
+debugfs and can be accessed via regular file I/O operations.
+
+The drivers exposes following files:
+
+* /sys/kernel/debug/<device-name>/acf
+  This file contains ACF (Automatically Controlled Features) status
+  information. The contents of the file is binary data of the
+  following layout:
+
+  .. tabularcolumns:: |p{7ex}|p{12ex}|L|
+
+  =============  ==============   ====================================
+  Offset	 Name		  Description
+  =============  ==============   ====================================
+  0x00		 blend_int	  Flag, set when stereo separation has
+				  crossed below the blend threshold
+  0x01		 hicut_int	  Flag, set when HiCut cutoff
+				  frequency is lower than threshold
+  0x02		 softmute_int	  Flag indicating that softmute
+				  attenuation has increased above
+				  softmute threshold
+  0x03		 blend_conv	  Stereo blend convergence indicator
+				  0 - Audio blend is in transition
+				  1 - Blend is within the tolerance
+  0x04		 hicut_conv	  High Cut convergence indicator
+				  0 - High cut filter is in transition
+				  1 - Filter is within the tolerance
+  0x05		 softmute_conv	  Softmute convergence indicator
+				  0 - Softmute is in transition
+				  1 - Softmute is within the tolerance
+  0x06		 blend_state	  Stereo blend indicator
+				  0 - Audio is not blended
+				  1 - Audio is blended
+  0x07		 hicut_state	  High Cut indicator
+				  0 - Audio is not frequency limited
+				  1 - Audio is frequency limited
+  0x08		 softmute_state	  Soft Mute indicator
+				  0 - Audio is not soft muted
+				  1 - Audio is soft muted
+  0x09		 smattn		  Soft mute attenuation level in dB
+  0x0a		 hicut		  HiCut cutoff frequency in units of
+				  100Hz
+  0x0b		 pilot		  0 - Stereo pilot is not present
+				  1 - Stereo pilot is present
+  0x0c		 stblend	  Stereo blend in %
+  0x0d		 lowcut		  AM low cut
+  0x0e		 rfu1		  DAB only: rfu1
+  0x0f		 rfu2		  DAB only: rfu2
+  0x10		 audio_level	  DAB only: level when soft mute engages
+  0x12		 cmft_noise_level DAB only: level when comfort noise engages
+  =============  ==============   ====================================
+
+* /sys/kernel/debug/<device-name>/rds_blckcnt
+  This file contains statistics about RDS receptions. It's binary data
+  has the following layout:
+
+  .. tabularcolumns:: |p{7ex}|p{12ex}|L|
+
+  =============  ==============   ====================================
+  Offset	 Name		  Description
+  =============  ==============   ====================================
+  0x00		 expected	  Number of expected RDS blocks
+  0x02		 received	  Number of received RDS blocks
+  0x04		 uncorrectable	  Number of uncorrectable RDS blocks
+  =============  ==============   ====================================
+
+* /sys/kernel/debug/<device-name>/agc
+  This file contains information about parameters pertaining to
+  AGC (Automatic Gain Control)
+
+  The layout is:
+
+  .. tabularcolumns:: |p{7ex}|p{12ex}|L|
+
+  =============  ==============   ====================================
+  Offset	 Name		  Description
+  =============  ==============   ====================================
+  0x00		 vhflna		  VHF LNA Gain setting (FM)
+  0x01		 vhfcatt	  VHF Front End Capacitive attenuator
+				  setting (FM)
+  0x02		 vhfrattlo	  VHF Front End Resistive (FM)
+  0x03		 vhfratthi	  attenuator setting (FM)
+  0x04		 lmhfrtanklo	  LMHF RTANK setting low (AM)
+  0x05		 lmhfrtankhi	  high (AM)
+  0x06		 rfindex	  RF AGC table index
+  0x07		 lmhfcatt	  LMHF CATT setting (AM)
+  =============  ==============   ====================================
+
+* /sys/kernel/debug/<device-name>/rsq
+  This file contains information about parameters pertaining to
+  RSQ (Received Signal Quality)
+
+  The layout is:
+
+  .. tabularcolumns:: |p{7ex}|p{12ex}|p{60ex}|
+
+  =============  ==============   ====================================
+  Offset	 Name		  Description
+  =============  ==============   ====================================
+  0x00		 hdlevelhint	  FILTERED_HDLEVEL above
+				  FM_RSQ_HDLEVEL_HIGH_THRESHOLD.
+  0x01		 hdlevellint	  FILTERED_HDLEVEL below
+				  FM_RSQ_HDLEVEL_LOW_THRESHOLD
+  0x02		 snrhint	  0 - received signal's SNR has not
+				  crossed high threshold
+				  1 - received signal's SNR has
+				  crossed high threshold
+  0x03		 snrlint	  ditto for low threshold
+  0x04		 rssihint	  ditto for RSSI high threshold
+  0x05		 rssilint	  ditto for RSSI low threshold
+  0x06		 bltf		  Flag indicating if seek command
+				  reached/wrapped seek band limit
+  0x07		 hddetected	  HDLEVEL metric is above threshold
+  0x08		 flt_hddetected	  filtered HDLEVEL is above threshold
+				  1 - Low-side injection is being used
+				  2 - High-side injection is used
+  0x09		 afcrl		  Flag indicating if AFC rails
+  0x0a		 valid		  Flag indicating if channel is valid
+  0x0b		 readfreq	  Current tuned frequency
+  0x0f		 freqoff	  Signed frequency offset in units of
+				  2ppm
+  0x10		 rssi		  Signed value of RSSI in dBuV
+  0x11		 snr		  Signed RF SNR in dB
+  0x12		 mult		  Multipath indicator
+  0x13		 readantcap	  antenna tuning cap value
+  0x15		 hdlevel	  HD availability confidence factor
+  0x16		 flt_hdlevel	  filtered version of the HD availability
+  0x17		 mod		  AM modulation index in percent
+  0x18		 ficerrint	  DAB only: FIC decoder has encountered
+				  unrecoverable errors
+  0x19		 acqint		  DAB only: change in the ensemble
+				  acquisition state
+  0x1a		 ficerr		  DAB only: ensemble is experiencing
+				  FIC errors
+  0x1b		 acq		  DAB only: ensemble is acquired
+  0x1c		 fic_quality	  DAB only: estimate of the ensembles
+				  FIC quality
+  0x1d		 cnr		  DAB only: ratio of the OFDM signal level
+				  during the on period and during the off period
+  0x1e		 fib_error_count  DAB only: num of Fast Information Blocks
+				  received with errors
+  0x20		 tune_index	  DAB only: currently tuned frequency index.
+				  Range: 0-47
+  0x21		 fft_offset	  DAB only: frequency offset of the DQPSK tones
+				  of the OFDM signal relative to the center of the
+				  FFT bins of the digital demod
+  0x22		 cu_level	  DAB only: Returns the CU usage indicator
+				  (number of currently decoded CU's ) 0-470
+  0x24		 fast_dect	  DAB only: statistical metric for DAB fast detect
+  =============  ==============   ====================================

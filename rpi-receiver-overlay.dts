@@ -1,0 +1,179 @@
+/*
+* Definitions for Raspberry Receiver
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2708", "brcm,bcm2709", "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&i2s>;
+		__overlay__ {
+			status = "okay"; /* device is enabled */
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			status = "okay"; /* device is enabled */
+			ssm2518_pins: ssm2518_pins {
+				brcm,pins = <27>; /* gpio no. */
+				brcm,function = <1>; /* 0:in, 1:out */
+				brcm,pull = <1>; /* 2:up 1:down 0:none */
+			};
+			si468x_pins: si468x_pins {
+				brcm,pins = <16>; /* gpio no. */
+				brcm,function = <1>; /* 0:in, 1:out */
+				brcm,pull = <0>; /* 2:up 1:down 0:none */
+			};
+			gpio_rtc_pins: gpio_rtc_pins {
+				brcm,pins = <4 22>;
+				brcm,function = <1 0>;
+				brcm,pull = <2 2>; // 2:up 1:down 0:none
+			};
+			gpio_ir_pins: gpio_ir_pins {
+				brcm,pins = <26>;
+				brcm,function = <0>; // in
+				brcm,pull = <2>; // up
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&leds>;
+		__overlay__ {
+			gpio_rtc_wakeup: gpio_rtc_wakeup {
+				compatible = "gpio-leds";
+				gpios = <&gpio 4 1>; /* GPIO_ACTIVE_HIGH 0, GPIO_ACTIVE_LOW 1 */
+				default-state = "on";
+				status = "okay";
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&i2c_arm>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			/* clock-frequency = <1000000>; */
+			status = "okay"; /* device is enabled */
+			ssm2518: ssm2518@34 {
+				#sound-dai-cells = <0>;
+				compatible = "adi,ssm2518";
+				reg = <0x34>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&ssm2518_pins>;
+				gpios = <&gpio 27 0>; /* GPIO_ACTIVE_HIGH for ssm2518*/
+				PVDD-supply = <&vdd_5v0_reg>;
+				DVDD-supply = <&vdd_3v3_reg>;
+				status = "okay"; /* device is enabled */
+			};
+			opt3001@44 {
+				compatible = "ti,opt3001";
+				reg = <0x44>;
+				interrupt-parent = <&gpio>;
+				interrupts = <23 2>; /* falling edge */
+				status = "okay"; /* device is enabled */
+			};
+			si4688: si4688@64 {
+				#sound-dai-cells = <0>;
+				compatible = "si,si4688";
+				reg = <0x64>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&si468x_pins>;
+				reset-gpios = <&gpio 16 1>; /* GPIO_ACTIVE_LOW for si468x*/
+				interrupt-parent = <&gpio>;
+				interrupts = <13 2>; /* falling edge */
+				vcore-supply = <&vdd_3v3_reg>;
+				vmem-supply = <&vdd_3v3_reg>;
+				va-supply = <&vdd_3v3_reg>;
+				vio-supply = <&vdd_3v3_reg>;
+				clock-mode = <1>; /* SI468X_XMODE_CRYSTAL */
+				clocks = <&si4688_osc>;
+				clock-ibias = <70>; /* for 5*70Ohm -> 700uA */
+				clock-ctun = <31>;
+				fm_tune_fe_varm = /bits/ 16 <0x8600>;
+				fm_tune_fe_varb = /bits/ 16 <0x00c9>;
+				fm_tune_fe_cfg = /bits/ 16 <1>;
+				dab_tune_fe_varm = /bits/ 16 <0xfe3e>;
+				dab_tune_fe_varb = /bits/ 16 <0x005e>;
+				dab_tune_fe_cfg = /bits/ 16 <0>;
+				/* firmware-am = "si468x/amhd_radio_3_0_6.bif"; */
+				/* firmware-fm = "si468x/fmhd_radio_5_1_0.bin"; */
+				/* firmware-dab = "si468x/dab_radio_5_0_8.bin"; */
+				firmware-mini = "si468x/rom00_patch_mini.bin";
+				/* firmware-patch = "si468x/rom00_patch.016.bin"; */
+				flash-am = <0x0011E000>;
+				flash-fm = <0x00006000>;
+				flash-dab = <0x00092000>;
+				/* flash-mini = <0x00002000>; */
+				flash-patch = <0x00004000>;
+				status = "okay"; /* device is enabled */
+			};
+			ds3231: ds3231@68 {
+				compatible = "maxim,ds3231";
+				reg = <0x68>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_rtc_pins>;
+				interrupt-parent = <&gpio>;
+				interrupts = <22 2>; /* falling edge */
+				wakeup-source;
+				status = "okay";
+			};
+		};
+	};
+
+	fragment@4 {
+		target = <&sound>;
+		__overlay__ {
+			compatible = "simple-audio-card";
+			simple-audio-card,name = "rpiReceiver";
+			simple-audio-card,widgets = "Speaker", "Speaker Out",
+							"Line", "In Tuner";
+			simple-audio-card,routing = "Speaker Out", "OUTL",
+							"Speaker Out", "OUTR",
+							"In Tuner", "ROUT",
+							"In Tuner", "LOUT";
+			status = "okay"; /* device is enabled */
+			simple-audio-card,dai-link@0 { /* I2S -> si4688 */
+				format = "i2s";
+				cpu {
+					sound-dai = <&i2s 0>;
+				};
+				codec {
+					sound-dai = <&si4688 0>;
+				};
+			};
+			simple-audio-card,dai-link@1 { /* I2S -> ssm2518 */
+				format = "i2s";
+				cpu {
+					sound-dai = <&i2s 0>;
+				};
+				codec {
+					sound-dai = <&ssm2518 0>;
+				};
+			};
+		};
+	};
+
+	fragment@5 {
+		target-path = "/";
+		__overlay__ {
+			gpio_ir: ir-receiver {
+				compatible = "gpio-ir-receiver";
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_ir_pins>;
+				gpios = <&gpio 26 1>;
+				status = "okay";
+			};
+			si4688_osc: si4688_osc {
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency  = <19200000>;
+			};
+		};
+	};
+};

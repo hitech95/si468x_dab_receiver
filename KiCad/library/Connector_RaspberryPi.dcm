@@ -1,0 +1,15 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP PI40HAT
+D 2X20 Raspberry Pi HAT Connector
+K Raspberry Pi HAT
+F http://www.assmann-wsw.com/wo/de/produkte/connectors/header/detail/1455276/
+$ENDCMP
+#
+$CMP PI4HAT
+D 2X2 Raspberry Pi HAT Connector
+K Raspberry Pi HAT
+F http://www.assmann-wsw.com/wo/de/produkte/connectors/header/detail/1455224/
+$ENDCMP
+#
+#End Doc Library

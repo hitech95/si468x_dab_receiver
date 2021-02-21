@@ -1,0 +1,7 @@
+(fp_lib_table
+  (lib (name Symbol_)(type KiCad)(uri ${KIPRJMOD}/modules/Symbol.pretty)(options "")(descr "PCB symbols"))
+  (lib (name MountingHole_)(type KiCad)(uri ${KIPRJMOD}/modules/MountingHole.pretty)(options "")(descr ""))
+  (lib (name Connector_TE-Connectivity_)(type KiCad)(uri ${KIPRJMOD}/modules/Connector_TE-Connectivity.pretty)(options "")(descr "Footprints for connectors by TE Connectivity"))
+  (lib (name Package_DFN_QFN_)(type KiCad)(uri ${KIPRJMOD}/modules/Package_DFN_QFN.pretty)(options "")(descr "Surface mount IC packages"))
+  (lib (name Package_CSP_)(type KiCad)(uri ${KIPRJMOD}/modules/Package_CSP.pretty)(options "")(descr "Chip Scale Packages (CSP)"))
+)

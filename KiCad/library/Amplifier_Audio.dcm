@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP SSM2518
+D Digital Input Stereo, 2 W, Class-D Audio Power Amplifier, 16-WLCSP 20-LFCSP
+K audio I2S
+F https://www.analog.com/media/en/technical-documentation/data-sheets/SSM2518.pdf
+$ENDCMP
+#
+#End Doc Library
